@@ -1,17 +1,14 @@
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import Login from "../auth/Login";
+import Dashboard from "../dashboard/Dashboard";
 import ProtectedRoute from "../auth/ProtectedRoute";
 
-const Dashboard = () => <div>Dashboard Page</div>;
-
-const AppRoutes = () => {
+export default function AppRoutes() {
   return (
     <Routes>
-      <Route path="/" element={<Navigate to="/login" />} />
       <Route path="/login" element={<Login />} />
-
       <Route
-        path="/dashboard"
+        path="/"
         element={
           <ProtectedRoute>
             <Dashboard />
@@ -20,6 +17,4 @@ const AppRoutes = () => {
       />
     </Routes>
   );
-};
-
-export default AppRoutes;
+}

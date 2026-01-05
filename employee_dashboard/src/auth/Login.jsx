@@ -1,85 +1,148 @@
-import { useState } from "react";
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
-  Box,
-  Button,
   Container,
   Paper,
   TextField,
+  Button,
   Typography,
-} from "@mui/material";
-import { useNavigate } from "react-router-dom";
+  Box,
+  InputAdornment,
+  IconButton,
+  Alert,
+  Avatar,
+} from '@mui/material';
+import {
+  Visibility,
+  VisibilityOff,
+  PersonOutline,
+} from '@mui/icons-material';
+import { useAuth } from '../context/AuthContext';
 
 const Login = () => {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState('');
+  const { login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
 
-  const handleLogin = () => {
-    if (!email || !password) {
-      setError("Please enter email and password");
-      return;
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/dashboard');
     }
+  }, [isAuthenticated, navigate]);
 
-    setError("");
-    setLoading(true);
-
-    setTimeout(() => {
-      localStorage.setItem("isLoggedIn", "true");
-      navigate("/dashboard");
-      setLoading(false);
-    }, 1000);
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setError('');
+    
+    const result = login(username, password);
+    if (result.success) {
+      navigate('/dashboard');
+    } else {
+      setError(result.error);
+    }
   };
 
   return (
     <Box
       sx={{
-        minHeight: "100vh",
-        display: "flex",
-        alignItems: "center",
-        background: "linear-gradient(135deg, #e3f2fd, #f1f8e9)",
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
       }}
     >
       <Container maxWidth="sm">
-        <Paper sx={{ p: 4, width: "100%" }} elevation={4}>
-          <Typography variant="h5" textAlign="center" mb={3}>
-            Employee Dashboard Login
-          </Typography>
-
-          <TextField
-            label="Email"
-            fullWidth
-            margin="normal"
-            autoFocus
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-
-          <TextField
-            label="Password"
-            type="password"
-            fullWidth
-            margin="normal"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
+        <Paper
+          elevation={10}
+          sx={{
+            p: 4,
+            borderRadius: 3,
+          }}
+        >
+          <Box sx={{ textAlign: 'center', mb: 3 }}>
+            <Avatar
+              sx={{
+                width: 64,
+                height: 64,
+                bgcolor: 'primary.main',
+                mx: 'auto',
+                mb: 2,
+              }}
+            >
+              <PersonOutline sx={{ fontSize: 40 }} />
+            </Avatar>
+            <Typography variant="h4" fontWeight="bold" gutterBottom>
+              Welcome Back
+            </Typography>
+            <Typography variant="body1" color="text.secondary">
+              Sign in to continue to dashboard
+            </Typography>
+          </Box>
 
           {error && (
-            <Typography color="error" mt={1}>
+            <Alert severity="error" sx={{ mb: 2 }}>
               {error}
-            </Typography>
+            </Alert>
           )}
 
-          <Button
-            variant="contained"
-            fullWidth
-            sx={{ mt: 3, py: 1.2 }}
-            onClick={handleLogin}
-            disabled={loading}
-          >
-            {loading ? "Logging in..." : "Login"}
-          </Button>
+          <Box component="form" onSubmit={handleSubmit}>
+            <TextField
+              fullWidth
+              label="Username"
+              variant="outlined"
+              margin="normal"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+              autoFocus
+            />
+
+            <TextField
+              fullWidth
+              label="Password"
+              variant="outlined"
+              margin="normal"
+              type={showPassword ? 'text' : 'password'}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={() => setShowPassword(!showPassword)}
+                      edge="end"
+                    >
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
+
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              size="large"
+              sx={{ mt: 3, mb: 2, py: 1.5 }}
+            >
+              Sign In
+            </Button>
+
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              align="center"
+              sx={{ mt: 2 }}
+            >
+              Demo credentials: admin / admin123
+            </Typography>
+          </Box>
         </Paper>
       </Container>
     </Box>
