@@ -74,15 +74,16 @@ const Dashboard = () => {
   const [statusFilter, setStatusFilter] = useState("all");
   const [showFilters, setShowFilters] = useState(false);
 
-  useEffect(() => {
-    const stored = localStorage.getItem("employees");
-    if (stored) {
-      setEmployees(JSON.parse(stored));
-    } else {
-      setEmployees(initialEmployees);
-      localStorage.setItem("employees", JSON.stringify(initialEmployees));
-    }
-  }, []);
+ useEffect(() => {
+  const stored = localStorage.getItem("employees");
+  
+  if (stored && JSON.parse(stored).length > 0) {
+    setEmployees(JSON.parse(stored));
+  } else {
+    setEmployees(initialEmployees);
+    localStorage.setItem("employees", JSON.stringify(initialEmployees));
+  }
+}, []);
 
   useEffect(() => {
     localStorage.setItem("employees", JSON.stringify(employees));
@@ -106,10 +107,17 @@ const Dashboard = () => {
     navigate("/");
   };
 
-  const handleAddEmployee = (emp) => {
-    setEmployees([...employees, { ...emp, id: Date.now() }]);
-    setShowForm(false);
+ const handleAddEmployee = (emp) => {
+  const nextId = employees.length > 0 
+    ? Math.max(...employees.map(e => e.id)) + 1 
+    : 1;
+  const newEmployee = { 
+    ...emp, 
+    id: nextId
   };
+  setEmployees([...employees, newEmployee]);
+  setShowForm(false);
+};
 
   const handleEditEmployee = (emp) => {
     setEmployees(employees.map((e) => (e.id === emp.id ? emp : e)));
